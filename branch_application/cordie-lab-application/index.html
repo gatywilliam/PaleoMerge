@@ -1,0 +1,141 @@
+<!-- Upload file to pyscript -->
+
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>py-script demos: csv upload form</title>
+  
+    <!-- pyscript -->
+    <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
+    <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+    <py-env>
+        - pandas
+    </py-env>
+  </head>
+  <body>
+    <div style="text-align: center;">
+        <p>Upload a csv File</p>
+        <ol>
+            <li>
+            <label for="upload">File Upload:</label>
+            <input type="file" name="upload" id="upload">
+            </li>
+        </ol>
+    <p id="content"></p>
+    <button onclick="downloadFile()" id="downloadButton" style="background-color: blue; color:white">Download</button>
+    </div>
+
+    <p id="temp" hidden="false"></p>
+
+<!-- py-script and py-env -->
+
+<!-- <py-env>
+</py-env> -->
+
+<py-script>
+    import asyncio
+    import js
+    from js import document, FileReader
+    from pyodide import create_proxy, to_js
+    import pandas as pd
+    from io import StringIO
+    #import pandasgui as pdg
+    async def read_complete(event):
+        # event is ProgressEvent
+
+        content = document.getElementById("content")
+        temp = event.target.result
+        data = StringIO(temp)
+        user_df = pd.read_csv(data)
+        content.innerText = content.innerText + "Done Loading File\n"
+        task = asyncio.create_task(get_updated_data())
+        content.innerText = content.innerText + "Retrieving data from database...\n"
+        new_df = await task
+        content.value = content.innerText + "Data Retrieved\n"
+        #content.innerText = content.innerText + "User: " + str(user_df.dtypes)
+        #content.innerText = content.innerText + "\nDatabase: " + str(new_df.dtypes)
+        df = new_df.merge(user_df, how='inner', on='occurrence_no')
+        #pd.set_option('display.max_columns', None)
+        content.innerText = content.innerText + "Data Saving...\n"
+        save_object = document.getElementById("temp")
+        save_object.textContent = df.to_csv()
+        #js.createObject(create_proxy(saved_df), "saved_df")
+        content.innerText = content.innerText + "Data Saved\n"
+        #pdg.show(df)
+
+    async def get_updated_data():
+        response = await js.make_request("http://paleobiodb.org/data1.2/occs/list.csv?taxon_reso=lump_genus&idqual=certain&pres=regular&max_ma=514&min_ma=477.7&show=class,loc,paleoloc,refattr,acconly")
+        #response = pyodide.http.pyfetch("http://paleobiodb.org/data1.2/occs/list.csv?taxon_reso=lump_genus&idqual=certain&pres=regular&max_ma=514&min_ma=477.7&show=class,loc,paleoloc,refattr,acconly")
+        data = StringIO(response)
+        df = pd.read_csv(data)
+        return df
+
+    async def process_file(x):
+        fileList = document.getElementById('upload').files
+        content = document.getElementById("content")
+        content.innerText = content.innerText + "Loading File...\n"
+        for f in fileList:
+            # reader is a pyodide.JsProxy
+            reader = FileReader.new()
+
+            # Create a Python proxy for the callback function
+            onload_event = create_proxy(read_complete)
+
+            reader.onload = onload_event
+
+            reader.readAsText(f)
+
+        return
+
+    def main():
+        # Create a Python proxy for the callback function
+        file_event = create_proxy(process_file)
+
+        # Set the listener to the callback
+        e = document.getElementById("upload")
+        e.addEventListener("change", file_event, False)
+
+    main()
+</py-script>
+<script type="text/javascript">
+async function make_request(url) {
+    return fetch(url).then(data=>{return data.text()})
+}
+</script>
+<script type="text/javascript">
+    function downloadFile(){
+        console.log("HELLO");
+        file = document.getElementById("temp");
+        const data = file.textContent;
+        // Creating a Blob for having a csv file format
+        // and passing the data with type
+        const blob = new Blob([data], { type: 'text/csv' });
+ 
+        // Creating an object for downloading url
+        const url = window.URL.createObjectURL(blob)
+
+        // Creating an anchor(a) tag of HTML
+        const a = document.createElement('a')
+
+        // Passing the blob downloading url
+        a.setAttribute('href', url)
+
+        // Setting the anchor tag attribute for downloading
+        // and passing the download file name
+        a.setAttribute('download', 'download.csv');
+
+        // Performing a download with click
+        a.click()
+    }
+</script>
+<!-- end py-script and py-env -->
+
+<!-- Output -->
+
+<div id="container">
+
+</div>
+  </body>
+</html>
