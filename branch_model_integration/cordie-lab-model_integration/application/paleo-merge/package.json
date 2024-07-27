@@ -1,0 +1,73 @@
+{
+  "productName": "Paleo-Merge",
+  "main": "electron/electron.ts",
+  "author": "Dylan Powers",
+  "name": "paleo-merge",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "@types/jest": "^27.5.2",
+    "@types/react": "^18.0.35",
+    "@types/react-dom": "^18.0.11",
+    "concurrently": "^8.0.1",
+    "electron-is-dev": "^2.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-loader-spinner": "^5.3.4",
+    "react-scripts": "5.0.1",
+    "typescript": "^5.0.0",
+    "wait-on": "^7.0.1",
+    "web-vitals": "^2.1.4"
+  },
+  "overrides": {
+    "typescript": "^5.0.0"
+  },
+  "scripts": {
+    "start:web": "react-scripts start",
+    "build:web": "set PUBLIC_URL=./ && react-scripts build",
+    "build:desktop": "tsc -p electron/tsconfig.json",
+    "start:desktop": "npm run build:desktop && electron ./build/electron.js",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "electron": "electron .",
+    "preelectron-pack": "npm run build:desktop",
+    "electron-pack": "electron-builder build -w"
+  },
+  "homepage": "./",
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@types/node": "^18.16.0",
+    "electron": "^24.3.0",
+    "electron-builder": "^23.6.0"
+  },
+  "build": {
+    "appId": "com.electron.${name}",
+    "files": [
+      "build/**/*",
+      "node_modules/**/*"
+    ],
+    "directories": {
+      "buildResources": "assets"
+    }
+  }
+}

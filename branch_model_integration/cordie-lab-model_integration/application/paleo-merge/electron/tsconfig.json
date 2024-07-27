@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+      "module": "commonjs",
+      "noImplicitAny": true,
+      "sourceMap": true,
+      "outDir": "../build",
+      "baseUrl": ".",
+      "esModuleInterop": true,
+      "jsx": "react",
+      "paths": {
+        "*": ["node_modules/*"]
+      }
+    },
+    "include": [
+      "**/*"
+    ]
+  }
